@@ -17,7 +17,7 @@ import {
   saveLocations,
   saveSeenGroupIds,
 } from "@/lib/storage";
-import type { AlertEntry, Conditions, FireGroup, FireReport, SavedLocation, ScoredGroup } from "@/lib/types";
+import type { AlertEntry, Conditions, DangerForecast, FireGroup, FireReport, SavedLocation, ScoredGroup } from "@/lib/types";
 
 const REFRESH_MS = 15 * 60 * 1000;
 const ALERT_SCORE_JUMP = 15;
@@ -29,6 +29,7 @@ export default function Home() {
   const [loadingGroups, setLoadingGroups] = useState(true);
   const [locations, setLocations] = useState<SavedLocation[]>([]);
   const [conditionsByLocation, setConditionsByLocation] = useState<Record<string, Conditions | null>>({});
+  const [dangerByLocation, setDangerByLocation] = useState<Record<string, DangerForecast | null>>({});
   const [scoredByLocation, setScoredByLocation] = useState<Record<string, ScoredGroup[]>>({});
   const [loadingConditions, setLoadingConditions] = useState(false);
   const [alerts, setAlerts] = useState<AlertEntry[]>([]);
@@ -133,6 +134,19 @@ export default function Home() {
     );
     const conditionsMap = Object.fromEntries(entries);
     setConditionsByLocation(conditionsMap);
+
+    const dangerEntries = await Promise.all(
+      currentLocations.map(async (loc) => {
+        try {
+          const res = await fetch(`/api/danger?lat=${loc.lat}&lon=${loc.lon}`);
+          const danger: DangerForecast | null = res.ok ? await res.json() : null;
+          return [loc.id, danger] as const;
+        } catch {
+          return [loc.id, null] as const;
+        }
+      })
+    );
+    setDangerByLocation(Object.fromEntries(dangerEntries));
 
     const scoredMap: Record<string, ScoredGroup[]> = {};
     const seen = loadSeenGroupIds();
@@ -333,6 +347,7 @@ export default function Home() {
               key={loc.id}
               location={loc}
               conditions={conditionsByLocation[loc.id] ?? null}
+              danger={dangerByLocation[loc.id] ?? null}
               topGroup={scoredByLocation[loc.id]?.[0] ?? null}
               loading={loadingConditions}
               onRemove={() => removeLocation(loc.id)}

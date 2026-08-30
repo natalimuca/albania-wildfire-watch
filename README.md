@@ -26,8 +26,26 @@ Open http://localhost:3000. Data sources used, all free / no-key except FIRMS:
 - **Air quality** — Open-Meteo air quality API (CAMS-based, modeled — Albania has very
   few ground monitors, see SPEC.md's limitations section)
 - **Map tiles** — OpenStreetMap raster tiles
+- **Fire danger forecast** — EFFIS / Copernicus `ecmwf.fwi` WMS layer (Fire Weather Index)
 - **Community fire reports** — Postgres (Neon, via Vercel Marketplace); `DATABASE_URL`
   is auto-injected by `vercel install neon`, no manual setup needed
+
+## Fire danger forecast
+
+Each saved location shows today's EFFIS Fire Weather Index class plus a 5-day outlook,
+using the official Copernicus class breaks (Low <11.2, Moderate 11.2–21.3, High
+21.3–38, Very high 38–50, Extreme 50–70, Very extreme >70).
+
+This complements the FIRMS layer rather than duplicating it: FIRMS is *reactive* (a fire
+is burning now), FWI is *predictive* (conditions favour fire over the coming days).
+
+**Implementation caveat:** EFFIS publishes FWI only as rendered WMS raster tiles — all
+three FWI layers report `queryable="0"`, and `GetFeatureInfo` returns `LayerNotDefined`,
+so there is no point-query API. `app/api/danger/route.ts` therefore requests a small
+GetMap PNG centred on the location and matches the dominant pixel colour against the
+official legend swatches (sampled from `GetLegendGraphic`, see `lib/danger.ts`). Colours
+are matched by nearest-RGB within a tolerance and return `null` rather than guessing when
+nothing matches. This yields the danger *class*, not the raw numeric FWI value.
 
 ## Language
 
@@ -75,12 +93,12 @@ Neon integration).
   cron job plus stored push subscriptions and isn't built yet. Saved locations and
   alert history still live in browser `localStorage` (personal, per-device by design) —
   only community fire reports are server-shared.
-- EFFIS official-perimeter cross-referencing (from the spec) isn't implemented as a live
-  data integration — their WFS endpoints timed out on every test query during
-  development. Instead, each location card links out to the official EFFIS viewer and
-  shows the full raw FIRMS detail (satellites, confidence, FRP, timestamps) we already
-  have. FIRMS detections stand alone otherwise, same fallback the spec calls for when no
-  official source is available.
+- EFFIS **burnt-area perimeter** cross-referencing (from the spec) still isn't wired in —
+  only the Fire Weather Index layer is. Location cards link out to the official EFFIS
+  viewer for perimeters, and show the full raw FIRMS detail (satellites, confidence, FRP,
+  timestamps) alongside.
+- The danger forecast is read from rendered map tiles (see caveat above), so it gives a
+  class band, not an exact FWI number. Treat a class boundary as approximate.
 - OpenStreetMap's public tile server has a usage policy meant for light traffic; swap in
   a provider like MapTiler or Stadia Maps (free tiers available) before any real
   distribution.

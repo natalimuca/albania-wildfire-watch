@@ -64,6 +64,18 @@ export interface AlertEntry {
   reasons: ReasonEntry[];
 }
 
+export interface DangerForecastDay {
+  date: string;
+  level: string | null;
+}
+
+export interface DangerForecast {
+  current: string | null;
+  forecast: DangerForecastDay[];
+  source: string;
+  fetchedAt: string;
+}
+
 export interface FireReport {
   id: string;
   lat: number;

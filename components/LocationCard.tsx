@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n/context";
-import type { Conditions, SavedLocation, ScoredGroup } from "@/lib/types";
+import DangerForecast from "@/components/DangerForecast";
+import type { Conditions, DangerForecast as DangerForecastData, SavedLocation, ScoredGroup } from "@/lib/types";
 
 const EFFIS_VIEWER_URL = "https://forest-fire.emergency.copernicus.eu/apps/effis_current_situation_test/";
 
@@ -16,6 +17,7 @@ function scoreColor(score: number) {
 interface LocationCardProps {
   location: SavedLocation;
   conditions: Conditions | null;
+  danger: DangerForecastData | null;
   topGroup: ScoredGroup | null;
   loading: boolean;
   onRemove: () => void;
@@ -25,6 +27,7 @@ interface LocationCardProps {
 export default function LocationCard({
   location,
   conditions,
+  danger,
   topGroup,
   loading,
   onRemove,
@@ -81,7 +84,12 @@ export default function LocationCard({
         </div>
       )}
 
-      <div className="mt-2 flex items-center gap-2 text-xs text-neutral-500">
+      <div className="mt-3 border-t border-neutral-200 pt-2 dark:border-neutral-800">
+        <div className="mb-1 text-xs font-medium">{t("danger.heading")}</div>
+        <DangerForecast data={danger} />
+      </div>
+
+      <div className="mt-3 flex items-center gap-2 text-xs text-neutral-500">
         <label htmlFor={`radius-${location.id}`}>{t("locationCard.alertRadius")}</label>
         <input
           id={`radius-${location.id}`}
