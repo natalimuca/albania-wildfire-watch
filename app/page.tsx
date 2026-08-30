@@ -14,8 +14,10 @@ import { scoreAllGroups } from "@/lib/score";
 import {
   loadAlerts,
   loadLocations,
+  loadDangerNotified,
   loadSeenGroupIds,
   pushAlerts,
+  saveDangerNotified,
   saveLocations,
   saveSeenGroupIds,
 } from "@/lib/storage";
@@ -23,6 +25,7 @@ import type { AlertEntry, Conditions, DangerForecast, FireGroup, FireReport, Sav
 
 const REFRESH_MS = 15 * 60 * 1000;
 const ALERT_SCORE_JUMP = 15;
+const DANGER_ALERT_LEVELS = ["extreme", "veryExtreme"];
 
 export default function Home() {
   const { t } = useI18n();
@@ -39,6 +42,7 @@ export default function Home() {
   const [reports, setReports] = useState<FireReport[]>([]);
   const [reportMode, setReportMode] = useState(false);
   const [showDanger, setShowDanger] = useState(false);
+  const [dangerBanners, setDangerBanners] = useState<string[]>([]);
   const dangerMapDates = useMemo(() => dangerDates(), []);
   const [dangerDate, setDangerDate] = useState(() => dangerDates()[0]);
   const [pendingReport, setPendingReport] = useState<{ lat: number; lon: number } | null>(null);
@@ -151,7 +155,36 @@ export default function Home() {
         }
       })
     );
-    setDangerByLocation(Object.fromEntries(dangerEntries));
+    const dangerMap = Object.fromEntries(dangerEntries);
+    setDangerByLocation(dangerMap);
+
+    const notified = loadDangerNotified();
+    const banners: string[] = [];
+    let notifiedChanged = false;
+
+    for (const loc of currentLocations) {
+      const d = dangerMap[loc.id];
+      if (!d?.current || !DANGER_ALERT_LEVELS.includes(d.current)) continue;
+
+      const todayDate = d.forecast[0]?.date ?? d.fetchedAt;
+      const stamp = `${d.current}:${todayDate}`;
+      if (notified[loc.id] === stamp) continue;
+
+      notified[loc.id] = stamp;
+      notifiedChanged = true;
+      const levelLabel = t(`danger.level.${d.current}`);
+      banners.push(t("notifications.dangerBanner", { level: levelLabel, name: loc.name }));
+
+      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+        new Notification(t("notifications.dangerTitle", { level: levelLabel, name: loc.name }), {
+          body: t("notifications.dangerBody", { date: todayDate }),
+          tag: `danger-${loc.id}-${todayDate}`,
+        });
+      }
+    }
+
+    if (notifiedChanged) saveDangerNotified(notified);
+    if (banners.length > 0) setDangerBanners(banners);
 
     const scoredMap: Record<string, ScoredGroup[]> = {};
     const seen = loadSeenGroupIds();
@@ -282,6 +315,22 @@ export default function Home() {
           {groupsError && <p className="mt-1 text-xs text-red-600">{t("app.errorLoadingDetections")}</p>}
           {loadingGroups && <p className="mt-1 text-xs text-neutral-400">{t("app.loadingDetections")}</p>}
         </div>
+
+        {dangerBanners.map((b, i) => (
+          <div
+            key={i}
+            className="flex items-start justify-between gap-2 rounded-md border border-red-600 bg-red-600/15 px-3 py-2 text-xs font-medium text-red-500"
+          >
+            <span>⚠ {b}</span>
+            <button
+              onClick={() => setDangerBanners((prev) => prev.filter((_, j) => j !== i))}
+              className="text-red-400 hover:text-red-200"
+              aria-label="dismiss"
+            >
+              ×
+            </button>
+          </div>
+        ))}
 
         {notifPermission !== "granted" && notifPermission !== "unsupported" && (
           <button

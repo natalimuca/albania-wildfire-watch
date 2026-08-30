@@ -3,6 +3,7 @@ import type { AlertEntry, SavedLocation } from "./types";
 const LOCATIONS_KEY = "awf.savedLocations.v1";
 const ALERTS_KEY = "awf.alerts.v2";
 const SEEN_KEY = "awf.seenGroups.v1";
+const DANGER_NOTIFIED_KEY = "awf.dangerNotified.v1";
 
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -43,4 +44,12 @@ export function loadSeenGroupIds(): Record<string, number> {
 
 export function saveSeenGroupIds(seen: Record<string, number>) {
   writeJson(SEEN_KEY, seen);
+}
+
+export function loadDangerNotified(): Record<string, string> {
+  return readJson<Record<string, string>>(DANGER_NOTIFIED_KEY, {});
+}
+
+export function saveDangerNotified(notified: Record<string, string>) {
+  writeJson(DANGER_NOTIFIED_KEY, notified);
 }

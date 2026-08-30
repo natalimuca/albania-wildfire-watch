@@ -1,0 +1,30 @@
+Copyright (c) 2026 Natalia Muça. All rights reserved.
+
+This software and its source code are proprietary and confidential.
+
+No permission is granted to any person to copy, modify, merge, publish, distribute,
+sublicense, sell, or create derivative works from this software or any portion of it,
+in whole or in part, by any means, without the prior written permission of the
+copyright holder.
+
+Viewing the publicly deployed application does not grant any license to its source code.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+Third-party data and services used by this software remain subject to their own terms
+and attribution requirements:
+
+  - NASA FIRMS (fire detections)
+  - EFFIS / Copernicus Emergency Management Service (fire danger)
+  - Open-Meteo (weather and air quality)
+  - OpenStreetMap contributors (map tiles and geocoding) — ODbL
+  - MapLibre GL JS — BSD-3-Clause
+
+This notice does not claim ownership over those services or their data.

@@ -57,6 +57,9 @@ export const dictionary = {
     notifications: {
       title: "Fire activity near {name}",
       body: "Score {score} · {km} km away",
+      dangerTitle: "{level} fire danger — {name}",
+      dangerBody: "EU EFFIS forecast for {date}. Avoid open flames and report smoke early.",
+      dangerBanner: "{level} fire danger forecast for {name}",
     },
     reason: {
       detectionDistance: "Detection ~{km} km away",
@@ -171,6 +174,9 @@ export const dictionary = {
     notifications: {
       title: "Aktivitet zjarri pranë {name}",
       body: "Rezultati {score} · {km} km larg",
+      dangerTitle: "Rrezik zjarri {level} — {name}",
+      dangerBody: "Parashikimi i EFFIS për {date}. Shmangni zjarret e hapura dhe raportoni tymin herët.",
+      dangerBanner: "Parashikim rreziku zjarri {level} për {name}",
     },
     reason: {
       detectionDistance: "Zbulim ~{km} km larg",
