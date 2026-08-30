@@ -37,7 +37,9 @@ using the official Copernicus class breaks (Low <11.2, Moderate 11.2–21.3, Hig
 21.3–38, Very high 38–50, Extreme 50–70, Very extreme >70).
 
 "Show danger on map" overlays the same FWI raster across the whole country as a
-half-opacity WMS layer (EPSG:3857 tiles, so it scales with zoom) with a colour legend.
+half-opacity WMS layer (EPSG:3857 tiles, so it scales with zoom) with a colour legend
+and a day picker — switching day re-points the raster source at another WMS `time`
+value, so you can step through the 5-day forecast over the whole map.
 
 This complements the FIRMS layer rather than duplicating it: FIRMS is *reactive* (a fire
 is burning now), FWI is *predictive* (conditions favour fire over the coming days).

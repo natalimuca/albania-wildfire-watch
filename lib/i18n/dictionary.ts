@@ -75,7 +75,7 @@ export const dictionary = {
       today: "Today",
       showOnMap: "Show danger on map",
       hideOnMap: "Hide danger layer",
-      legendTitle: "Fire danger today",
+      legendTitle: "Fire danger forecast",
       weekday: {
         "0": "Sun",
         "1": "Mon",
@@ -189,7 +189,7 @@ export const dictionary = {
       today: "Sot",
       showOnMap: "Shfaq rrezikun në hartë",
       hideOnMap: "Fshih shtresën e rrezikut",
-      legendTitle: "Rreziku nga zjarri sot",
+      legendTitle: "Parashikimi i rrezikut nga zjarri",
       weekday: {
         "0": "Die",
         "1": "Hën",

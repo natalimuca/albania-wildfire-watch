@@ -14,7 +14,7 @@ const MATCH_TOLERANCE = 40;
 export const FWI_WMS_BASE = "https://maps.effis.emergency.copernicus.eu/gwis";
 export const FWI_LAYER = "ecmwf.fwi";
 
-export function fwiTileUrl() {
+export function fwiTileUrl(date: string = today()) {
   const params = new URLSearchParams({
     service: "WMS",
     version: "1.3.0",
@@ -26,13 +26,23 @@ export function fwiTileUrl() {
     transparent: "true",
     width: "256",
     height: "256",
-    time: today(),
+    time: date,
   });
   return `${FWI_WMS_BASE}?${params.toString()}&bbox={bbox-epsg-3857}`;
 }
 
 export function today() {
   return new Date().toISOString().slice(0, 10);
+}
+
+export const DANGER_MAP_DAYS = 5;
+
+export function dangerDates(count = DANGER_MAP_DAYS) {
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date();
+    d.setUTCDate(d.getUTCDate() + i);
+    return d.toISOString().slice(0, 10);
+  });
 }
 
 export function buildGetMapUrl(lat: number, lon: number, date: string, span = 0.08, size = 9) {

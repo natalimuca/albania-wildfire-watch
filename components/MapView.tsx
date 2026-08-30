@@ -8,6 +8,7 @@ import {
   Popup,
   type GeoJSONSource,
   type MapMouseEvent,
+  type RasterTileSource,
   type StyleSpecification,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -53,6 +54,7 @@ interface MapViewProps {
   reports: FireReport[];
   reportMode?: boolean;
   showDanger?: boolean;
+  dangerDate?: string;
   onMapClick?: (lat: number, lon: number) => void;
 }
 
@@ -62,6 +64,7 @@ export default function MapView({
   reports,
   reportMode,
   showDanger,
+  dangerDate,
   onMapClick,
 }: MapViewProps) {
   const { t, lang } = useI18n();
@@ -114,10 +117,14 @@ export default function MapView({
 
     const apply = () => {
       if (showDanger) {
-        if (!map.getSource(DANGER_SOURCE)) {
+        const url = fwiTileUrl(dangerDate);
+        const existing = map.getSource(DANGER_SOURCE) as RasterTileSource | undefined;
+        if (existing) {
+          existing.setTiles([url]);
+        } else {
           map.addSource(DANGER_SOURCE, {
             type: "raster",
-            tiles: [fwiTileUrl()],
+            tiles: [url],
             tileSize: 256,
             attribution: "Fire danger © EFFIS / Copernicus EMS",
           });
@@ -140,7 +147,7 @@ export default function MapView({
     };
 
     whenReady(map, apply);
-  }, [showDanger]);
+  }, [showDanger, dangerDate]);
 
   useEffect(() => {
     const map = mapRef.current;

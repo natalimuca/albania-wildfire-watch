@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView from "@/components/MapView";
 import AddLocationForm from "@/components/AddLocationForm";
 import LocationCard from "@/components/LocationCard";
@@ -8,6 +8,7 @@ import AlertsPanel from "@/components/AlertsPanel";
 import ReportsPanel from "@/components/ReportsPanel";
 import LanguageToggle from "@/components/LanguageToggle";
 import DangerLegend from "@/components/DangerLegend";
+import { dangerDates } from "@/lib/danger";
 import { useI18n } from "@/lib/i18n/context";
 import { scoreAllGroups } from "@/lib/score";
 import {
@@ -38,6 +39,8 @@ export default function Home() {
   const [reports, setReports] = useState<FireReport[]>([]);
   const [reportMode, setReportMode] = useState(false);
   const [showDanger, setShowDanger] = useState(false);
+  const dangerMapDates = useMemo(() => dangerDates(), []);
+  const [dangerDate, setDangerDate] = useState(() => dangerDates()[0]);
   const [pendingReport, setPendingReport] = useState<{ lat: number; lon: number } | null>(null);
   const [reportNote, setReportNote] = useState("");
   const [submittingReport, setSubmittingReport] = useState(false);
@@ -257,9 +260,16 @@ export default function Home() {
           reports={reports}
           reportMode={reportMode}
           showDanger={showDanger}
+          dangerDate={dangerDate}
           onMapClick={handleMapClick}
         />
-        {showDanger && <DangerLegend />}
+        {showDanger && (
+          <DangerLegend
+            dates={dangerMapDates}
+            selected={dangerDate}
+            onSelect={setDangerDate}
+          />
+        )}
       </div>
 
       <div className="flex w-full flex-1 flex-col gap-4 overflow-y-auto p-4 md:w-1/3">
