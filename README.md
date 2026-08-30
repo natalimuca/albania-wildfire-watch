@@ -51,14 +51,22 @@ as a standalone app with its own icon — no app store needed.
 
 ## Deploy
 
-Easiest path is Vercel (same team as Next.js, free tier, automatic HTTPS):
+Hosted on Vercel at https://albania-wildfire-watch.vercel.app, connected to this repo —
+**pushing to `master` deploys to production automatically**, no command needed:
 
 ```bash
-npx vercel
+git push
 ```
 
-Set the `FIRMS_MAP_KEY` environment variable in the Vercel project settings (same value
-as `.env.local`).
+To deploy manually without a push (e.g. from a dirty working tree):
+
+```bash
+npx vercel --prod
+```
+
+Environment variables are set in the Vercel project settings, not in the repo:
+`FIRMS_MAP_KEY` (same value as `.env.local`) and `DATABASE_URL` (auto-injected by the
+Neon integration).
 
 ## Notes / known limitations
 
