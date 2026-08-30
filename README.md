@@ -36,6 +36,9 @@ Each saved location shows today's EFFIS Fire Weather Index class plus a 5-day ou
 using the official Copernicus class breaks (Low <11.2, Moderate 11.2–21.3, High
 21.3–38, Very high 38–50, Extreme 50–70, Very extreme >70).
 
+"Show danger on map" overlays the same FWI raster across the whole country as a
+half-opacity WMS layer (EPSG:3857 tiles, so it scales with zoom) with a colour legend.
+
 This complements the FIRMS layer rather than duplicating it: FIRMS is *reactive* (a fire
 is burning now), FWI is *predictive* (conditions favour fire over the coming days).
 

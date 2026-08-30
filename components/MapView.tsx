@@ -12,8 +12,12 @@ import {
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { ALBANIA_CENTER, circlePolygon } from "@/lib/geo";
+import { fwiTileUrl } from "@/lib/danger";
 import { useI18n } from "@/lib/i18n/context";
 import type { FireGroup, FireReport, SavedLocation } from "@/lib/types";
+
+const DANGER_SOURCE = "effis-fwi";
+const DANGER_LAYER = "effis-fwi-layer";
 
 const OSM_STYLE: StyleSpecification = {
   version: 8,
@@ -48,18 +52,35 @@ interface MapViewProps {
   locations: SavedLocation[];
   reports: FireReport[];
   reportMode?: boolean;
+  showDanger?: boolean;
   onMapClick?: (lat: number, lon: number) => void;
 }
 
-export default function MapView({ groups, locations, reports, reportMode, onMapClick }: MapViewProps) {
+export default function MapView({
+  groups,
+  locations,
+  reports,
+  reportMode,
+  showDanger,
+  onMapClick,
+}: MapViewProps) {
   const { t, lang } = useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const fireMarkersRef = useRef<Marker[]>([]);
   const locationMarkersRef = useRef<Marker[]>([]);
   const reportMarkersRef = useRef<Marker[]>([]);
+  const loadedRef = useRef(false);
   const onMapClickRef = useRef(onMapClick);
   onMapClickRef.current = onMapClick;
+
+  const whenReady = (map: MapLibreMap, fn: () => void) => {
+    if (loadedRef.current) {
+      fn();
+      return;
+    }
+    map.once("load", fn);
+  };
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -70,11 +91,15 @@ export default function MapView({ groups, locations, reports, reportMode, onMapC
       zoom: 7,
     });
     map.addControl(new NavigationControl(), "top-right");
+    map.on("load", () => {
+      loadedRef.current = true;
+    });
     map.on("click", (e: MapMouseEvent) => onMapClickRef.current?.(e.lngLat.lat, e.lngLat.lng));
     mapRef.current = map;
     return () => {
       map.remove();
       mapRef.current = null;
+      loadedRef.current = false;
     };
   }, []);
 
@@ -82,6 +107,40 @@ export default function MapView({ groups, locations, reports, reportMode, onMapC
     const canvas = mapRef.current?.getCanvas();
     if (canvas) canvas.style.cursor = reportMode ? "crosshair" : "";
   }, [reportMode]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const apply = () => {
+      if (showDanger) {
+        if (!map.getSource(DANGER_SOURCE)) {
+          map.addSource(DANGER_SOURCE, {
+            type: "raster",
+            tiles: [fwiTileUrl()],
+            tileSize: 256,
+            attribution: "Fire danger © EFFIS / Copernicus EMS",
+          });
+        }
+        if (!map.getLayer(DANGER_LAYER)) {
+          const firstOverlay = map.getLayer("alert-radii-fill") ? "alert-radii-fill" : undefined;
+          map.addLayer(
+            {
+              id: DANGER_LAYER,
+              type: "raster",
+              source: DANGER_SOURCE,
+              paint: { "raster-opacity": 0.5 },
+            },
+            firstOverlay
+          );
+        }
+      } else if (map.getLayer(DANGER_LAYER)) {
+        map.removeLayer(DANGER_LAYER);
+      }
+    };
+
+    whenReady(map, apply);
+  }, [showDanger]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -162,8 +221,7 @@ export default function MapView({ groups, locations, reports, reportMode, onMapC
       }
     };
 
-    if (map.isStyleLoaded()) applyCircles();
-    else map.once("load", applyCircles);
+    whenReady(map, applyCircles);
   }, [locations]);
 
   useEffect(() => {

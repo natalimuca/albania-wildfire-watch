@@ -21,7 +21,7 @@ export function fwiTileUrl() {
     request: "GetMap",
     layers: FWI_LAYER,
     styles: "default",
-    crs: "EPSG:4326",
+    crs: "EPSG:3857",
     format: "image/png",
     transparent: "true",
     width: "256",

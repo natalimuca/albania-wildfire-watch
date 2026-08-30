@@ -73,6 +73,9 @@ export const dictionary = {
       source: "EU Copernicus / EFFIS · Fire Weather Index",
       unavailable: "Forecast unavailable",
       today: "Today",
+      showOnMap: "Show danger on map",
+      hideOnMap: "Hide danger layer",
+      legendTitle: "Fire danger today",
       weekday: {
         "0": "Sun",
         "1": "Mon",
@@ -184,6 +187,9 @@ export const dictionary = {
       source: "Copernicus i BE-së / EFFIS · Indeksi i Motit të Zjarrit",
       unavailable: "Parashikimi nuk është i disponueshëm",
       today: "Sot",
+      showOnMap: "Shfaq rrezikun në hartë",
+      hideOnMap: "Fshih shtresën e rrezikut",
+      legendTitle: "Rreziku nga zjarri sot",
       weekday: {
         "0": "Die",
         "1": "Hën",

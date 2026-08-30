@@ -7,6 +7,7 @@ import LocationCard from "@/components/LocationCard";
 import AlertsPanel from "@/components/AlertsPanel";
 import ReportsPanel from "@/components/ReportsPanel";
 import LanguageToggle from "@/components/LanguageToggle";
+import DangerLegend from "@/components/DangerLegend";
 import { useI18n } from "@/lib/i18n/context";
 import { scoreAllGroups } from "@/lib/score";
 import {
@@ -36,6 +37,7 @@ export default function Home() {
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | "unsupported">("default");
   const [reports, setReports] = useState<FireReport[]>([]);
   const [reportMode, setReportMode] = useState(false);
+  const [showDanger, setShowDanger] = useState(false);
   const [pendingReport, setPendingReport] = useState<{ lat: number; lon: number } | null>(null);
   const [reportNote, setReportNote] = useState("");
   const [submittingReport, setSubmittingReport] = useState(false);
@@ -248,14 +250,16 @@ export default function Home() {
 
   return (
     <div className="flex h-screen flex-col md:flex-row">
-      <div className="h-[45vh] w-full md:h-full md:w-2/3">
+      <div className="relative h-[45vh] w-full md:h-full md:w-2/3">
         <MapView
           groups={groups}
           locations={locations}
           reports={reports}
           reportMode={reportMode}
+          showDanger={showDanger}
           onMapClick={handleMapClick}
         />
+        {showDanger && <DangerLegend />}
       </div>
 
       <div className="flex w-full flex-1 flex-col gap-4 overflow-y-auto p-4 md:w-1/3">
@@ -277,6 +281,17 @@ export default function Home() {
             {t("app.enableNotifications")}
           </button>
         )}
+
+        <button
+          onClick={() => setShowDanger((v) => !v)}
+          className={`rounded-md border px-3 py-2 text-xs font-medium ${
+            showDanger
+              ? "border-orange-600 bg-orange-600 text-white"
+              : "border-orange-600 text-orange-600"
+          }`}
+        >
+          {showDanger ? t("danger.hideOnMap") : t("danger.showOnMap")}
+        </button>
 
         {!pendingReport && (
           <button
